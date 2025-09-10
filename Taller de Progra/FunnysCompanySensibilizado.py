@@ -114,7 +114,7 @@ for k in K:
 Y = LpVariable.dicts("Unidades Transportadas", [(i,k,f,t) for i in I for k in K for f in F for t in T], lowBound=0, cat="Integer")
 
 # Si se abre una planta del tipo j en la ciudad i
-X = LpVariable.dicts("Apertura Planta", [(i,j) for i in I for j in J], cat="Binary")
+X = LpVariable.dicts("Apertura Planta", [(i,j) for i in I for j in J],lowBound=0, cat="Integer")
 
 # Modelo y función objetivo
 prob = LpProblem("Funnys_Company", LpMinimize)
@@ -148,7 +148,7 @@ costo_transporte = lpSum(
     for f in F
     )
 
-prob += costo_fijo + costo_variable + costo_transporte 
+prob += costo_fijo + costo_variable + costo_transporte
 
 ## Restricciones del problema
 
@@ -172,6 +172,18 @@ for i in I:
 # Capacidad de plantas en una sola ciudad
 for i in I:
     prob += X[(i,"Pequeña")] + X[(i,"Grande")] <= 1
+
+
+## Análisis de sensibilidad
+
+#prob += lpSum(X[(i, "Pequeña")] for i in I) == 1
+#prob += lpSum(X[("Antofagasta", j)] for j in J) == 0
+#prob += lpSum(X[("Valparaíso", j)] for j in J) == 0
+#prob += lpSum(X[("Santiago", j)] for j in J) == 0
+#prob += X[("Santiago", "Grande")] == 1
+#prob += lpSum(X[("Rancagua", j)] for j in J) == 0
+#prob += lpSum(X[("Concepción", j)] for j in J) == 0
+#prob += lpSum(X[("Puerto Montt", j)] for j in J) == 0
 
 # Solver
 status = prob.solve(PULP_CBC_CMD(mip=True))
@@ -220,6 +232,7 @@ ciudades_chile = {
     "Rancagua": (-70.74053, -34.1691)
 }
 
+'''
 ## Mapa General
 # Figura y proyección
 fig = plt.figure(figsize=(6, 10))
@@ -249,7 +262,7 @@ plt.title("Ciudades bajo estudio", fontsize=12)
 # -----------------------------
 gdf_santiago = gpd.read_file("Taller de Progra\Areas_Pobladas\Areas_Pobladas.shp")
 
-#Reproyectar a lat/lon (EPSG:4326)
+# Reproyectar a lat/lon (EPSG:4326)
 # -----------------------------
 gdf_santiago = gdf_santiago.to_crs("EPSG:4326")
 
@@ -307,3 +320,4 @@ plt.title("Mapa de todas las fábricas construidas")
 plt.show()
 
 
+'''
